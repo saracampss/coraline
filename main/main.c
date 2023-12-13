@@ -13,8 +13,11 @@
 #include "http_client.h"
 #include "mqtt.h"
 #include "oled.h"
+#include "dht22.h"
 
 int PLANT_STATUS = 0;
+float TEMPERATURE = 0.0;
+float HUMIDITY = 0.0;
 
 SemaphoreHandle_t conexaoWifiSemaphore;
 SemaphoreHandle_t conexaoMQTTSemaphore;
@@ -25,6 +28,23 @@ void oled_task(void *params)
   {
     oled_loop();
     vTaskDelay(2000 / portTICK_PERIOD_MS);
+  }
+}
+
+void dht_task(void *pvParameter)
+{
+  set_dht_gpio(4);
+
+  while (1)
+  {
+    int ret = read_dht();
+
+    error_handler(ret);
+
+    HUMIDITY = get_humidity();
+    TEMPERATURE = get_temperature();
+
+    vTaskDelay(3000 / portTICK_PERIOD_MS);
   }
 }
 
@@ -41,18 +61,17 @@ void conectado_wifi(void *params)
 
 void trata_comunicacao_servidor(void *params)
 {
-  char mensagem[50];
+  char mensagem[200];
   char jsonAtributos[200];
 
   if (xSemaphoreTake(conexaoMQTTSemaphore, portMAX_DELAY))
   {
     while (true)
     {
-      float temperatura = 20.0 + (float)rand() / (float)(RAND_MAX / 10.0);
-      sprintf(mensagem, "{\"rand_temp\": %f,\n\"humor_status\": %d}", temperatura, PLANT_STATUS);
+      sprintf(mensagem, "{\"temperature\": %f, \"humidity\": %f, \n\"humor_status\": %d}", TEMPERATURE, HUMIDITY, PLANT_STATUS);
       mqtt_envia_mensagem("v1/devices/me/telemetry", mensagem);
 
-      sprintf(jsonAtributos, "{\"humor_status\": %d}", PLANT_STATUS);
+      sprintf(jsonAtributos, "{\"temperature\": %f, \"humidity\": %f, \n\"humor_status\": %d}", TEMPERATURE, HUMIDITY, PLANT_STATUS);
       mqtt_envia_mensagem("v1/devices/me/attributes", mensagem);
 
       vTaskDelay(3000 / portTICK_PERIOD_MS);
@@ -77,8 +96,10 @@ void app_main(void)
 
   wifi_start();
   oled_start();
+  set_dht_gpio(4);
 
   xTaskCreate(&conectado_wifi, "Conexão ao MQTT", 4096, NULL, 1, NULL);
   xTaskCreate(&trata_comunicacao_servidor, "Comunicação com Broker", 4096, NULL, 1, NULL);
   xTaskCreate(&oled_task, "Atualização do Display", 2048, NULL, 2, NULL);
+  xTaskCreate(&dht_task, "Conexão com sensor DHT22", 2048, NULL, 5, NULL);
 }

@@ -2,7 +2,8 @@
     "files.associations": {
         "inttypes.h": "c",
         "sdkconfig.h": "c",
-        "stdlib.h": "c"
+        "stdlib.h": "c",
+        "dht22.h": "c"
     },
     "idf.adapterTargetName": "esp32"
 }
