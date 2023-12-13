@@ -8,16 +8,22 @@
 #include "freertos/semphr.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "esp_adc/adc_oneshot.h"
 
 #include "wifi.h"
+#include "gpio_setup.h"
+#include "soil_moisture.h"
 #include "http_client.h"
 #include "mqtt.h"
 #include "oled.h"
 #include "dht22.h"
 
+#define MOISTURE ADC_CHANNEL_6
+
 int PLANT_STATUS = 0;
 float TEMPERATURE = 0.0;
 float HUMIDITY = 0.0;
+float SOIL_MOISTURE = 0.0;
 
 SemaphoreHandle_t conexaoWifiSemaphore;
 SemaphoreHandle_t conexaoMQTTSemaphore;
@@ -27,11 +33,27 @@ void oled_task(void *params)
   while (true)
   {
     oled_loop();
-    vTaskDelay(2000 / portTICK_PERIOD_MS);
+    vTaskDelay(3000 / portTICK_PERIOD_MS);
   }
 }
 
-void dht_task(void *pvParameter)
+void soil_task(void *params)
+{
+  adc_init(ADC_UNIT_1);
+
+  pinMode(MOISTURE, GPIO_ANALOG);
+
+  while (true)
+  {
+    int moisture = analogRead(MOISTURE);
+
+    SOIL_MOISTURE = 100.0 - ((moisture / 4095.0) * 100.0);
+
+    vTaskDelay(3000 / portTICK_PERIOD_MS);
+  }
+}
+
+void dht_task(void *params)
 {
   set_dht_gpio(4);
 
@@ -68,10 +90,10 @@ void trata_comunicacao_servidor(void *params)
   {
     while (true)
     {
-      sprintf(mensagem, "{\"temperature\": %f, \"humidity\": %f, \n\"humor_status\": %d}", TEMPERATURE, HUMIDITY, PLANT_STATUS);
+      sprintf(mensagem, "{\"moisture\": %f, \"temperature\": %f, \"humidity\": %f, \n\"humor_status\": %d}", SOIL_MOISTURE, TEMPERATURE, HUMIDITY, PLANT_STATUS);
       mqtt_envia_mensagem("v1/devices/me/telemetry", mensagem);
 
-      sprintf(jsonAtributos, "{\"temperature\": %f, \"humidity\": %f, \n\"humor_status\": %d}", TEMPERATURE, HUMIDITY, PLANT_STATUS);
+      sprintf(jsonAtributos, "{\"moisture\": %f, \"temperature\": %f, \"humidity\": %f, \n\"humor_status\": %d}", SOIL_MOISTURE, TEMPERATURE, HUMIDITY, PLANT_STATUS);
       mqtt_envia_mensagem("v1/devices/me/attributes", mensagem);
 
       vTaskDelay(3000 / portTICK_PERIOD_MS);
@@ -102,4 +124,5 @@ void app_main(void)
   xTaskCreate(&trata_comunicacao_servidor, "Comunicação com Broker", 4096, NULL, 1, NULL);
   xTaskCreate(&oled_task, "Atualização do Display", 2048, NULL, 2, NULL);
   xTaskCreate(&dht_task, "Conexão com sensor DHT22", 2048, NULL, 5, NULL);
+  xTaskCreate(&soil_task, "Conexão com sensor de umidade de solo", 2048, NULL, 5, NULL);
 }
