@@ -3,7 +3,8 @@
         "inttypes.h": "c",
         "sdkconfig.h": "c",
         "stdlib.h": "c",
-        "dht22.h": "c"
+        "dht22.h": "c",
+        "font8x8_basic.h": "c"
     },
     "idf.adapterTargetName": "esp32"
 }

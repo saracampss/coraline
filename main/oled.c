@@ -9,18 +9,26 @@
 #include "ssd1306.h"
 #include "font8x8_basic.h"
 
+#define TAG "SSD1306"
+
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 64
 
-extern int PLANT_STATUS;
+int PLANT_STATUS = 2;
+//  começa no 2 porque o 2 é o estado feliz, mais neutro
+// 0 - seco, precisa de rega
+// 1 - temperatura ou umidade fora do ideal
+// 2 - temperatura e umidades perto do ideal, mas pode melhorar
+// 3 - todas as escalas estão perfeitas
+extern float TEMPERATURE;
+extern float HUMIDITY;
+extern float SOIL_MOISTURE;
 
 int DISPLAY_MODE = 0;
 
 SSD1306_t dev;
 
-#define TAG "SSD1306"
-
-uint8_t amando[] = {
+uint8_t radiante[] = {
     0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
     0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
     0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
@@ -284,39 +292,70 @@ uint8_t sede[] = {
     0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
     0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0};
 
+void oled_clear()
+{
+    ssd1306_clear_screen(&dev, false);
+}
+
 void display_plant_status_emoji()
 {
-    switch (PLANT_STATUS)
+    // solo seco, planta com sede
+    if (SOIL_MOISTURE < 25)
     {
-    case 0:
-        ESP_LOGI(TAG, "Display emoji updated with plant status 0, amando");
-        ssd1306_bitmaps(&dev, 0, 8, amando, 128, 56, false);
-        break;
-    case 1:
-        ESP_LOGI(TAG, "Display emoji updated with plant status 1, feliz");
-        ssd1306_bitmaps(&dev, 0, 8, feliz, 128, 56, false);
-        break;
-    case 2:
-        ESP_LOGI(TAG, "Display emoji updated with plant status 2, triste");
-        ssd1306_bitmaps(&dev, 0, 8, triste, 128, 56, false);
-        break;
-    case 3:
-        ESP_LOGI(TAG, "Display emoji updated with plant status 3, sede");
-        ssd1306_bitmaps(&dev, 0, 8, sede, 128, 56, false);
-        break;
-    default:
-        ESP_LOGI(TAG, "Display emoji reseted to default status, feliz");
-        ssd1306_bitmaps(&dev, 0, 8, feliz, 128, 56, false);
-        break;
+        if (PLANT_STATUS != 0)
+        {
+            oled_clear();
+            PLANT_STATUS = 0;
+            ESP_LOGI(TAG, "Display emoji updated with plant status 0, sede");
+            ssd1306_bitmaps(&dev, 0, 8, sede, 128, 56, false);
+        }
+
+        ESP_LOGI(TAG, "Status atualizado, planta está COM SEDE");
+    }
+    // algo está incomodando a planta, seja temperaturas fora do range 20-30,
+    // umidade do solo nao tao alta e umidade do ar abaixo do ideal
+    else if (TEMPERATURE > 30 || TEMPERATURE < 20 || HUMIDITY < 60 || SOIL_MOISTURE < 45)
+    {
+        if (PLANT_STATUS != 1)
+        {
+            oled_clear();
+            PLANT_STATUS = 1;
+            ESP_LOGI(TAG, "Display emoji updated with plant status 1, triste");
+            ssd1306_bitmaps(&dev, 0, 8, triste, 128, 56, false);
+        }
+
+        ESP_LOGI(TAG, "Status atualizado, planta está TRISTE");
+    }
+    // coloca a planta no estado de amor quando tudo está ideal, temperatura e umidades
+    else if (TEMPERATURE <= 30 && TEMPERATURE >= 20 && HUMIDITY > 60 && SOIL_MOISTURE >= 45)
+    {
+        if (PLANT_STATUS != 3)
+        {
+            oled_clear();
+            PLANT_STATUS = 3;
+            ESP_LOGI(TAG, "Display emoji updated with plant status 3, radiante");
+            ssd1306_bitmaps(&dev, 0, 8, radiante, 128, 56, false);
+        }
+
+        ESP_LOGI(TAG, "Status atualizado, planta está RADIANTE");
+    }
+    else
+    {
+        if (PLANT_STATUS != 2)
+        {
+            oled_clear();
+            PLANT_STATUS = 2;
+            ESP_LOGI(TAG, "Display emoji updated with plant status 2, feliz");
+            ssd1306_bitmaps(&dev, 0, 8, feliz, 128, 56, false);
+        }
+
+        ESP_LOGI(TAG, "Status atualizado, planta está FELIZ");
     }
 }
 
-void oled_loop(void)
+void oled_display_info(void)
 {
     srand(time(NULL));
-    PLANT_STATUS = rand() % 4;
-
-    ssd1306_clear_screen(&dev, false);
 
     ssd1306_display_text(&dev, 0, "--- coraline ---", 16, false);
 
@@ -326,9 +365,16 @@ void oled_loop(void)
     }
     else if (DISPLAY_MODE == 1)
     {
-        ssd1306_display_text(&dev, 2, " Temp. Ar:  23C", 16, false);
-        ssd1306_display_text(&dev, 4, " Umid. Ar:  80%", 15, false);
-        ssd1306_display_text(&dev, 6, " Um. Solo:  80%", 15, false);
+        char lineChar[20];
+
+        sprintf(&lineChar[1], " Temp. Ar: %.1f", TEMPERATURE);
+        ssd1306_display_text(&dev, 2, lineChar, strlen(lineChar), false);
+
+        sprintf(&lineChar[1], " Umid. Ar: %.1f", HUMIDITY);
+        ssd1306_display_text(&dev, 4, lineChar, strlen(lineChar), false);
+
+        sprintf(&lineChar[1], " Um. Solo: %.1f", SOIL_MOISTURE);
+        ssd1306_display_text(&dev, 6, lineChar, strlen(lineChar), false);
     }
 
     // ssd1306_clear_screen(&dev, false);

@@ -3,6 +3,8 @@
 
 void oled_start();
 
-void oled_loop();
+void oled_clear();
+
+void oled_display_info();
 
 #endif

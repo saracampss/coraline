@@ -18,9 +18,12 @@
 #include "oled.h"
 #include "dht22.h"
 
+#define TAG "MAIN"
+
 #define MOISTURE ADC_CHANNEL_6
 
-int PLANT_STATUS = 0;
+extern int PLANT_STATUS;
+
 float TEMPERATURE = 0.0;
 float HUMIDITY = 0.0;
 float SOIL_MOISTURE = 0.0;
@@ -32,8 +35,8 @@ void oled_task(void *params)
 {
   while (true)
   {
-    oled_loop();
-    vTaskDelay(3000 / portTICK_PERIOD_MS);
+    oled_display_info();
+    vTaskDelay(1000 / portTICK_PERIOD_MS);
   }
 }
 
@@ -123,6 +126,6 @@ void app_main(void)
   xTaskCreate(&conectado_wifi, "Conexão ao MQTT", 4096, NULL, 1, NULL);
   xTaskCreate(&trata_comunicacao_servidor, "Comunicação com Broker", 4096, NULL, 1, NULL);
   xTaskCreate(&oled_task, "Atualização do Display", 2048, NULL, 2, NULL);
-  xTaskCreate(&dht_task, "Conexão com sensor DHT22", 2048, NULL, 5, NULL);
-  xTaskCreate(&soil_task, "Conexão com sensor de umidade de solo", 2048, NULL, 5, NULL);
+  xTaskCreate(&dht_task, "Conexão com sensor DHT22", 2048, NULL, 3, NULL);
+  xTaskCreate(&soil_task, "Conexão com sensor de umidade de solo", 2048, NULL, 3, NULL);
 }
