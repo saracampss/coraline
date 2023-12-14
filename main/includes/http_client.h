@@ -4,4 +4,4 @@
 void http_request();
 void https_request();
 
-#endif
+#endif // HTTP_CLIENT

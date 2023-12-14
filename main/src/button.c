@@ -7,8 +7,8 @@
 #include "gpio_setup.h"
 #include "oled.h"
 
-#define BUTTON_PIN GPIO_NUM_0 // Exemplo: Botão conectado ao pino GPIO0
-#define LED_PIN GPIO_NUM_2    // Exemplo: LED conectado ao pino GPIO2
+#define BUTTON_PIN GPIO_NUM_0
+#define LED_PIN GPIO_NUM_2
 
 #define TAG "BUTTON"
 
@@ -24,7 +24,6 @@ void button_task(void *params)
         {
             change_display_mode();
             ESP_LOGI(TAG, "Botão pressionado!");
-
             // Acender o LED
             digitalWrite(LED_PIN, 1);
             // Aguardar um curto período para evitar leituras múltiplas rápidas

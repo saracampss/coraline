@@ -98,9 +98,9 @@ void i2c_init(SSD1306_t * dev, int width, int height) {
 
 	esp_err_t espRc = i2c_master_cmd_begin(I2C_NUM, cmd, 10/portTICK_PERIOD_MS);
 	if (espRc == ESP_OK) {
-		ESP_LOGI(TAG, "OLED configured successfully");
+		ESP_LOGI(TAG, "OLED configurado com sucesso");
 	} else {
-		ESP_LOGE(TAG, "OLED configuration failed. code: 0x%.2X", espRc);
+		ESP_LOGE(TAG, "Falha na configuração do OLED. CÓDIGO: 0x%.2X", espRc);
 	}
 	i2c_cmd_link_delete(cmd);
 }
@@ -243,9 +243,9 @@ void i2c_hardware_scroll(SSD1306_t * dev, ssd1306_scroll_type_t scroll) {
 	i2c_master_stop(cmd);
 	espRc = i2c_master_cmd_begin(I2C_NUM, cmd, 10/portTICK_PERIOD_MS);
 	if (espRc == ESP_OK) {
-		ESP_LOGD(TAG, "Scroll command succeeded");
+		ESP_LOGD(TAG, "Scrollado com sucesso");
 	} else {
-		ESP_LOGE(TAG, "Scroll command failed. code: 0x%.2X", espRc);
+		ESP_LOGE(TAG, "Scroll falhou. CÓDIGO: 0x%.2X", espRc);
 	}
 
 	i2c_cmd_link_delete(cmd);

@@ -66,18 +66,18 @@ void error_handler(int response)
 	{
 
 	case DHT_TIMEOUT_ERROR:
-		ESP_LOGE(TAG, "Sensor Timeout\n");
+		ESP_LOGE(TAG, "Erro de timeout durante a leiturat");
 		break;
 
 	case DHT_CHECKSUM_ERROR:
-		ESP_LOGE(TAG, "CheckSum error\n");
+		ESP_LOGE(TAG, "Erro checksum durante a leitura");
 		break;
 
 	case DHT_OK:
 		break;
 
 	default:
-		ESP_LOGE(TAG, "Unknown error\n");
+		ESP_LOGE(TAG, "Erro desconhecido");
 	}
 }
 

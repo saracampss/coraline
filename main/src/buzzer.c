@@ -8,7 +8,6 @@
 #include "gpio_setup.h"
 
 #define TAG = "BUZZER";
-
 #define BUZZER_PIN 13
 
 extern int PLANT_STATUS;

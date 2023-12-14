@@ -11,7 +11,6 @@
 #include "buzzer.h"
 
 #define TAG "SSD1306"
-
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 64
 
@@ -279,20 +278,17 @@ uint8_t sede[] = {
     0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
     0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0};
 
-int PLANT_STATUS = 2;
-uint8_t PLANT_STATUS_EMOJI[sizeof(feliz)];
-//  começa no 2 porque o 2 é o estado feliz, mais neutro
 // 0 - seco, precisa de rega
 // 1 - temperatura ou umidade fora do ideal
 // 2 - temperatura e umidades perto do ideal, mas pode melhorar
 // 3 - todas as escalas estão perfeitas
+int PLANT_STATUS = 2; //  começa no 2 porque o 2 é o estado feliz, mais neutro, deve ser sobrescrito pelo nvs após primeira utilização
+int DISPLAY_MODE = 0;
+uint8_t PLANT_STATUS_EMOJI[sizeof(feliz)];
+SSD1306_t dev;
 extern float TEMPERATURE;
 extern float HUMIDITY;
 extern float SOIL_MOISTURE;
-
-int DISPLAY_MODE = 0;
-
-SSD1306_t dev;
 
 void oled_clear()
 {
@@ -308,7 +304,7 @@ void display_plant_status_emoji()
         if (memcmp(PLANT_STATUS_EMOJI, sede, sizeof(sede)) != 0)
         {
             oled_clear();
-            ESP_LOGI(TAG, "Display emoji updated with plant status 0, sede");
+            ESP_LOGI(TAG, "Emoji SEDE renderizado");
             ssd1306_bitmaps(&dev, 0, 8, sede, 128, 56, false);
             memcpy(PLANT_STATUS_EMOJI, sede, sizeof(sede));
         }
@@ -317,7 +313,7 @@ void display_plant_status_emoji()
         if (memcmp(PLANT_STATUS_EMOJI, triste, sizeof(triste)) != 0)
         {
             oled_clear();
-            ESP_LOGI(TAG, "Display emoji updated with plant status 1, triste");
+            ESP_LOGI(TAG, "Emoji TRISTE renderizado");
             ssd1306_bitmaps(&dev, 0, 8, triste, 128, 56, false);
             memcpy(PLANT_STATUS_EMOJI, triste, sizeof(triste));
         }
@@ -326,7 +322,7 @@ void display_plant_status_emoji()
         if (memcmp(PLANT_STATUS_EMOJI, feliz, sizeof(feliz)) != 0)
         {
             oled_clear();
-            ESP_LOGI(TAG, "Display emoji updated with plant status 2, feliz");
+            ESP_LOGI(TAG, "Emoji FELIZ renderizado");
             ssd1306_bitmaps(&dev, 0, 8, feliz, 128, 56, false);
             memcpy(PLANT_STATUS_EMOJI, feliz, sizeof(feliz));
         }
@@ -335,7 +331,7 @@ void display_plant_status_emoji()
         if (memcmp(PLANT_STATUS_EMOJI, radiante, sizeof(radiante)) != 0)
         {
             oled_clear();
-            ESP_LOGI(TAG, "Display emoji updated with plant status 3, radiante");
+            ESP_LOGI(TAG, "Emoji RADIANTE renderizado");
             ssd1306_bitmaps(&dev, 0, 8, radiante, 128, 56, false);
             memcpy(PLANT_STATUS_EMOJI, radiante, sizeof(radiante));
         }
@@ -437,7 +433,7 @@ void oled_start(void)
     ssd1306_clear_screen(&dev, false);
     ssd1306_contrast(&dev, 0xff);
 
-    ESP_LOGI(TAG, "OLED setup finished");
+    ESP_LOGI(TAG, "Configuração finalizada");
     memcpy(PLANT_STATUS_EMOJI, feliz, sizeof(feliz));
 }
 
@@ -451,16 +447,16 @@ void change_display_mode()
         memset(PLANT_STATUS_EMOJI, 0, sizeof(PLANT_STATUS_EMOJI));
 
         DISPLAY_MODE = 1;
-        ESP_LOGI(TAG, "OLED mode changed: %d, ", DISPLAY_MODE);
+        ESP_LOGI(TAG, "Modo atualizado, mostrando emoji");
         return;
     }
 
     if (DISPLAY_MODE == 1)
     {
         DISPLAY_MODE = 0;
-        ESP_LOGI(TAG, "OLED mode changed: %d, ", DISPLAY_MODE);
+        ESP_LOGI(TAG, "Modo atualizado, mostrando dados dos sensores");
         return;
     }
 
-    ESP_LOGE(TAG, "Current OLED mode unknown: %d", DISPLAY_MODE);
+    ESP_LOGE(TAG, "Modo desconhecido %d", DISPLAY_MODE);
 }

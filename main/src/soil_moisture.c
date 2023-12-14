@@ -12,17 +12,10 @@
 #include "gpio_setup.h"
 #include "esp_log.h"
 
-const static char *TAG = "SOIL_MOISTURE";
-
+#define TAG "SOIL_MOISTURE"
 #define MOISTURE ADC_CHANNEL_6
 
 float SOIL_MOISTURE;
-
-/*---------------------------------------------------------------
-        ADC General Macros
----------------------------------------------------------------*/
-
-//-------------ADC1 Init---------------//
 adc_oneshot_unit_handle_t adc1_handle;
 adc_oneshot_unit_init_cfg_t init_config1;
 
@@ -34,7 +27,6 @@ void adc_init(adc_unit_t adc_unit)
 
 void adc_config_pin(adc_channel_t channel)
 {
-    //-------------ADC1 Config---------------//
     adc_oneshot_chan_cfg_t config = {
         .bitwidth = ADC_BITWIDTH_12,
         .atten = ADC_ATTEN_DB_11,
@@ -50,9 +42,10 @@ void adc_deinit()
 int analogRead(adc_channel_t channel)
 {
     int adc_raw;
+
     ESP_ERROR_CHECK(adc_oneshot_read(adc1_handle, channel, &adc_raw));
 
-    ESP_LOGI(TAG, "Umidade do Solo: %.2f \n", adc_raw);
+    ESP_LOGI(TAG, "Umidade do Solo: %.2f", adc_raw);
 
     return adc_raw;
 }
@@ -60,7 +53,6 @@ int analogRead(adc_channel_t channel)
 void soil_task(void *params)
 {
     adc_init(ADC_UNIT_1);
-
     pinMode(MOISTURE, GPIO_ANALOG);
 
     while (true)
@@ -69,6 +61,8 @@ void soil_task(void *params)
 
         SOIL_MOISTURE = 100.0 - ((moisture / 4095.0) * 100.0);
 
-        vTaskDelay(3000 / portTICK_PERIOD_MS);
+        ESP_LOGI(TAG, "Umidade do solo %.2f", SOIL_MOISTURE);
+
+        vTaskDelay(1000 / portTICK_PERIOD_MS);
     }
 }

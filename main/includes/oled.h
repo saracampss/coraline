@@ -11,4 +11,4 @@ void set_plant_status_task();
 
 void change_display_mode();
 
-#endif
+#endif // OLED

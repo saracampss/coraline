@@ -14,4 +14,4 @@ void pinMode(gpio_num_t pin, int mode);
 void digitalWrite(gpio_num_t pin, uint32_t level);
 uint32_t digitalRead(gpio_num_t pin);
 
-#endif
+#endif // GPIO_SETUP

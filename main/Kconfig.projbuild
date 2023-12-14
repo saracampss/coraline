@@ -2,13 +2,13 @@ menu "Configuração do Wifi Configuration"
 
     config ESP_WIFI_SSID
         string "WiFi SSID"
-        default "sena"
+        default "FSE-WiFi"
         help
             Nome da rede Wifi.
 
     config ESP_WIFI_PASSWORD
         string "Senha do Wifi"
-        default "leonam111"
+        default "FSE-2023"
         help
             Senha do WiFi (WPA or WPA2).
 

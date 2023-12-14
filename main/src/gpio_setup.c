@@ -7,9 +7,10 @@
 #include "gpio_setup.h"
 #include "soil_moisture.h"
 
-const static char* TAG = "GPIO_SETUP";
+#define TAG "GPIO_SETUP"
 
-void pinMode(gpio_num_t pin, int mode){
+void pinMode(gpio_num_t pin, int mode)
+{
     gpio_config_t io_conf = {};
     switch (mode)
     {
@@ -49,15 +50,17 @@ void pinMode(gpio_num_t pin, int mode){
         adc_config_pin(pin);
         break;
     default:
-        ESP_LOGW(TAG, "Unable to configure pin %d", pin);
+        ESP_LOGW(TAG, "Não foi possívei configurar pino %d", pin);
         break;
     }
 }
 
-void digitalWrite(gpio_num_t pin, uint32_t level){
+void digitalWrite(gpio_num_t pin, uint32_t level)
+{
     gpio_set_level(pin, level);
 }
 
-uint32_t digitalRead(gpio_num_t pin){
+uint32_t digitalRead(gpio_num_t pin)
+{
     return gpio_get_level(pin);
 }
