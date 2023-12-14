@@ -18,6 +18,7 @@
 #include "oled.h"
 #include "dht22.h"
 #include "nvs.h"
+#include "button.h"
 
 #define TAG "MAIN"
 
@@ -124,4 +125,5 @@ void app_main(void)
   xTaskCreate(&dht_task, "dht", 2048, NULL, 3, NULL);
   xTaskCreate(&soil_task, "sensor_solo", 2048, NULL, 3, NULL);
   xTaskCreate(&grava_nvs_task, "armazenamento_nvs", 2048, NULL, 3, NULL);
+  xTaskCreate(&button_task, "button_task", 2048, NULL, 1, NULL);
 }
