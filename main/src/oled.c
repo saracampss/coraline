@@ -354,7 +354,7 @@ int get_updated_plant_status()
         return 0;
     // algo está incomodando a planta, seja temperaturas fora do range 16-33,
     // umidade do solo nao tao alta e umidade do ar abaixo do ideal
-    else if (TEMPERATURE > 32 || TEMPERATURE < 19 || HUMIDITY < 45 || SOIL_MOISTURE < 35)
+    else if (TEMPERATURE > 32 || TEMPERATURE < 18 || HUMIDITY < 45 || SOIL_MOISTURE < 35)
         return 1;
     // coloca a planta no estado de amor quando tudo está ideal, temperatura e umidades
     else if (TEMPERATURE <= 33 && TEMPERATURE >= 18 && HUMIDITY > 50 && SOIL_MOISTURE >= 40)
