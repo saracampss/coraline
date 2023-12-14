@@ -27,6 +27,11 @@
 #define TAG "MQTT"
 
 extern int DISPLAY_MODE;
+extern int PLANT_STATUS;
+extern float SOIL_MOISTURE;
+extern float TEMPERATURE;
+extern float HUMIDITY;
+
 extern SemaphoreHandle_t conexaoMQTTSemaphore;
 esp_mqtt_client_handle_t client;
 
@@ -201,4 +206,24 @@ void mqtt_envia_mensagem(char *topico, char *mensagem)
 {
     int message_id = esp_mqtt_client_publish(client, topico, mensagem, 0, 1, 0);
     ESP_LOGI(TAG, "Mensagem enviada, ID: %d", message_id);
+}
+
+void comunicacao_servidor_task(void *params)
+{
+  char mensagem[200];
+  char jsonAtributos[200];
+
+  if (xSemaphoreTake(conexaoMQTTSemaphore, portMAX_DELAY))
+  {
+    while (true)
+    {
+      sprintf(mensagem, "{\"moisture\": %f, \"temperature\": %f, \"humidity\": %f, \n\"plant_status\": %d}", SOIL_MOISTURE, TEMPERATURE, HUMIDITY, PLANT_STATUS);
+      mqtt_envia_mensagem("v1/devices/me/telemetry", mensagem);
+
+      sprintf(jsonAtributos, "{\"display_mode\": %d, \n\"plant_status\": %d}", DISPLAY_MODE, PLANT_STATUS);
+      mqtt_envia_mensagem("v1/devices/me/attributes", mensagem);
+
+      vTaskDelay(3000 / portTICK_PERIOD_MS);
+    }
+  }
 }

@@ -19,5 +19,6 @@ int read_dht();
 float get_humidity();
 float get_temperature();
 int get_signal_level(int usTimeOut, bool state);
+void dht_task(void *params);
 
 #endif

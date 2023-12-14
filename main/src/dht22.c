@@ -28,6 +28,9 @@
 
 #include "DHT22.h"
 
+float TEMPERATURE;
+float HUMIDITY;
+
 // == global defines =============================================
 
 static const char *TAG = "DHT";
@@ -247,4 +250,21 @@ int read_dht()
 
 	else
 		return DHT_CHECKSUM_ERROR;
+}
+
+void dht_task(void *params)
+{
+  set_dht_gpio(4);
+
+  while (1)
+  {
+    int ret = read_dht();
+
+    error_handler(ret);
+
+    HUMIDITY = get_humidity();
+    TEMPERATURE = get_temperature();
+
+    vTaskDelay(3000 / portTICK_PERIOD_MS);
+  }
 }

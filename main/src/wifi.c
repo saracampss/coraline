@@ -12,6 +12,7 @@
 
 #include "lwip/err.h"
 #include "lwip/sys.h"
+#include "mqtt.h"
 
 #define WIFI_SSID      CONFIG_ESP_WIFI_SSID
 #define WIFI_PASS      CONFIG_ESP_WIFI_PASSWORD
@@ -103,3 +104,14 @@ void wifi_start(){
 }
 
 void wifi_stop();
+
+void wifi_task(void *params)
+{
+  while (true)
+  {
+    if (xSemaphoreTake(conexaoWifiSemaphore, portMAX_DELAY))
+    {
+      mqtt_start();
+    }
+  }
+}

@@ -7,5 +7,6 @@ void adc_init();
 void adc_config_pin(adc_channel_t channel);
 void adc_deinit();
 int analogRead(adc_channel_t channel);
+void soil_task(void *params);
 
 #endif

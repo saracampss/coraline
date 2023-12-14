@@ -12,7 +12,11 @@
 #include "gpio_setup.h"
 #include "esp_log.h"
 
-const static char* TAG = "SOIL_MOISTURE";
+const static char *TAG = "SOIL_MOISTURE";
+
+#define MOISTURE ADC_CHANNEL_6
+
+float SOIL_MOISTURE;
 
 /*---------------------------------------------------------------
         ADC General Macros
@@ -53,3 +57,18 @@ int analogRead(adc_channel_t channel)
     return adc_raw;
 }
 
+void soil_task(void *params)
+{
+    adc_init(ADC_UNIT_1);
+
+    pinMode(MOISTURE, GPIO_ANALOG);
+
+    while (true)
+    {
+        int moisture = analogRead(MOISTURE);
+
+        SOIL_MOISTURE = 100.0 - ((moisture / 4095.0) * 100.0);
+
+        vTaskDelay(3000 / portTICK_PERIOD_MS);
+    }
+}

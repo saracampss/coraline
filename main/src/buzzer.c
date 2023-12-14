@@ -9,26 +9,16 @@
 
 #define TAG = "BUZZER";
 
-// Definindo o pino do buzzer
 #define BUZZER_PIN 13
 
-// Definindo a configuração do canal PWM para o buzzer
-#define BUZZER_PWM_CHANNEL LEDC_CHANNEL_0
-#define BUZZER_PWM_TIMER LEDC_TIMER_0
-
 extern int PLANT_STATUS;
-int IS_PLAYING = 0;
 
 void play_buzzer()
 {
-    if (IS_PLAYING == 1) return;
-
-    IS_PLAYING = 1;
-
-    pinMode(13, GPIO_OUTPUT);
+    pinMode(BUZZER_PIN, GPIO_OUTPUT);
     TickType_t startTime = xTaskGetTickCount();
 
-    while (true)
+    while (PLANT_STATUS == 0)
     {
         for (int i = 0; i < 5; i++)
         {
@@ -59,9 +49,6 @@ void play_buzzer()
         TickType_t elapsedTime = xTaskGetTickCount() - startTime;
 
         if (elapsedTime >= pdMS_TO_TICKS(10000)) // 10 segundos
-        {
-            IS_PLAYING = 0;
             break;
-        }
     }
 }

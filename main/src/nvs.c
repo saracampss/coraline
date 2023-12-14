@@ -12,6 +12,9 @@
 
 extern int DISPLAY_MODE;
 extern int PLANT_STATUS;
+extern float SOIL_MOISTURE;
+extern float TEMPERATURE;
+extern float HUMIDITY;
 
 int le_valor_nvs(char *chave)
 {
@@ -92,8 +95,11 @@ void grava_nvs_task()
     {
         grava_valor_nvs(DISPLAY_MODE, "display_mode");
         grava_valor_nvs(PLANT_STATUS, "plant_status");
+        grava_valor_nvs(SOIL_MOISTURE, "soil_moisture");
+        grava_valor_nvs(TEMPERATURE, "temperature");
+        grava_valor_nvs(HUMIDITY, "humidity");
 
-        vTaskDelay(500 / portTICK_PERIOD_MS);
+        vTaskDelay(1000 / portTICK_PERIOD_MS);
     }
 }
 
@@ -101,10 +107,19 @@ void inicia_valores_nvs()
 {
     int display_mode_nvs = le_valor_nvs("display_mode");
     int plant_status_nvs = le_valor_nvs("plant_status");
+    float soil_moisture_nvs = le_valor_nvs("soil_moisture");
+    float temperature_nvs = le_valor_nvs("temperature");
+    float humidity_nvs = le_valor_nvs("humidity");
 
     ESP_LOGI(TAG, "Valor armazenado MODO DO DISPLAY: %d", display_mode_nvs);
     ESP_LOGI(TAG, "Valor armazenado HUMOR DA CORALINE: %d", plant_status_nvs);
+    ESP_LOGI(TAG, "Valor armazenado UMIDADE SOLO: %.1f", soil_moisture_nvs);
+    ESP_LOGI(TAG, "Valor armazenado TEMPERATURA: %.1f", temperature_nvs);
+    ESP_LOGI(TAG, "Valor armazenado UMIDADE AR: %.1f", humidity_nvs);
 
     DISPLAY_MODE = display_mode_nvs;
     PLANT_STATUS = plant_status_nvs;
+    SOIL_MOISTURE = soil_moisture_nvs;
+    TEMPERATURE = temperature_nvs;
+    HUMIDITY = humidity_nvs;
 }
