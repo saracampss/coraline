@@ -26,7 +26,7 @@ O módulo OLED SSD1306 tem duas opções de visualização: humor ou informaçõ
 - Radiante: a planta está em condições ideais, ou seja, temperatura do ar entre 18ºC e 33ºC, umidade do ar maior que 50% e umidade do solo de 40% para mais; 
 - Feliz: a planta está em boas condições de temperatura do ar e umidade do ar e do solo, apesar de não atingir métricas excelentes;
 - Triste: a planta está incomodada com algo, seja temperatura fora do intervalo de 18ºC a 32ºC, ou umidade do ar abaixo do ideal, ou pouca umidade do solo;
-- Sede: a planta está com solo pouco úmido apresentando 25% ou menos de umidade. Nesste estado a planta também dispara  um alarme via buzzer para sinalizar que precisa ser regada. 
+- Sede: a planta está com solo seco apresentando 25% ou menos de umidade. Neste estado a planta também dispara  um alarme via buzzer para sinalizar que precisa ser regada. 
 
 A partir do uso do Servidor Central Thingsboard foi criado o Dashboard para visualizar em tempo real o humor da planta e todas as leituras dos sensores (telemetria e estado dos atributos), que são enviadas via MQTT. Além disso, o Dashboard apresenta gráficos com a variação dessas leituras ao longo do tempo e permite disparar comandos RPC para acionar o alarme caso a planta sinta sede ou mudar a visualização do display OLED, mostrando humor ou informações. 
 
