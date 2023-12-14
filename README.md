@@ -53,9 +53,9 @@ Na imagem a seguir é possível observar como os módulos foram conectados a pla
 
 
 ---
-## Fundamentos de Sistemas Embarcados 2023.2
+## Universidade de Brasília - Faculdade do Gama 
 
-| Estudante | Matrícula | 
-| - | - |
-| Arthur Sena | 180030345 | 
-| Sara Campos | 170045269 | 
+Disciplina: Fundamentos de Sistemas Embarcados  
+Semestre: 2023.2  
+Professor: Renato Coral   
+Estudantes/Desenvolvedores: Arthur Sena e Sara Campos
