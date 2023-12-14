@@ -9,4 +9,6 @@ void oled_display_info_task();
 
 void set_plant_status_task();
 
+void change_display_mode();
+
 #endif
