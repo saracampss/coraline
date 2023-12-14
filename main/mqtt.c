@@ -22,6 +22,7 @@
 
 #include "mqtt.h"
 #include "oled.h"
+#include "buzzer.h"
 
 #define TAG "MQTT"
 
@@ -150,7 +151,11 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
                 }
                 else if (strcmp(method->valuestring, "play_buzzer") == 0)
                 {
-                    // Lidar com o método "play_buzzer"
+                    play_buzzer();
+                }
+                else if (strcmp(method->valuestring, "stop_buzzer") == 0)
+                {
+                    // stop_buzzer();
                 }
                 else
                 {

@@ -116,13 +116,12 @@ void app_main(void)
 
   wifi_start();
   oled_start();
-  set_dht_gpio(4);
 
-  xTaskCreate(&conectado_wifi, "Conexão ao MQTT", 4096, NULL, 1, NULL);
-  xTaskCreate(&trata_comunicacao_servidor, "Comunicação com Broker", 4096, NULL, 1, NULL);
-  xTaskCreate(&oled_display_info_task, "Atualização do Display", 2048, NULL, 2, NULL);
-  xTaskCreate(&set_plant_status_task, "Atualização do Humor da Planta", 2048, NULL, 2, NULL);
-  xTaskCreate(&dht_task, "Conexão com sensor DHT22", 2048, NULL, 3, NULL);
-  xTaskCreate(&soil_task, "Conexão com sensor de umidade de solo", 2048, NULL, 3, NULL);
-  xTaskCreate(&grava_nvs_task, "Armazena dados de estado no NVS", 2048, NULL, 3, NULL);
+  xTaskCreate(&conectado_wifi, "conexao_mqtt", 4096, NULL, 1, NULL);
+  xTaskCreate(&trata_comunicacao_servidor, "comunicacao_broker", 4096, NULL, 1, NULL);
+  xTaskCreate(&oled_display_info_task, "render_display", 2048, NULL, 2, NULL);
+  xTaskCreate(&set_plant_status_task, "atualiza_humor_planta", 2048, NULL, 2, NULL);
+  xTaskCreate(&dht_task, "dht", 2048, NULL, 3, NULL);
+  xTaskCreate(&soil_task, "sensor_solo", 2048, NULL, 3, NULL);
+  xTaskCreate(&grava_nvs_task, "armazenamento_nvs", 2048, NULL, 3, NULL);
 }

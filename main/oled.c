@@ -8,6 +8,7 @@
 
 #include "ssd1306.h"
 #include "font8x8_basic.h"
+#include "buzzer.h"
 
 #define TAG "SSD1306"
 
@@ -346,14 +347,14 @@ void display_plant_status_emoji()
     }
 }
 
-int get_plant_status_task()
+int get_updated_plant_status()
 {
     // solo seco, planta com sede
     if (SOIL_MOISTURE <= 25)
         return 0;
     // algo está incomodando a planta, seja temperaturas fora do range 16-33,
     // umidade do solo nao tao alta e umidade do ar abaixo do ideal
-    else if (TEMPERATURE > 32 || TEMPERATURE < 19 || HUMIDITY < 50 || SOIL_MOISTURE < 35)
+    else if (TEMPERATURE > 32 || TEMPERATURE < 19 || HUMIDITY < 45 || SOIL_MOISTURE < 35)
         return 1;
     // coloca a planta no estado de amor quando tudo está ideal, temperatura e umidades
     else if (TEMPERATURE <= 33 && TEMPERATURE >= 18 && HUMIDITY > 50 && SOIL_MOISTURE >= 40)
@@ -366,7 +367,15 @@ void set_plant_status_task()
 {
     while (true)
     {
-        PLANT_STATUS = get_plant_status_task();
+        int updated_plant_status = get_updated_plant_status();
+
+        if (updated_plant_status != PLANT_STATUS)
+        {
+            PLANT_STATUS = updated_plant_status;
+
+            if (updated_plant_status == 0)
+                play_buzzer();
+        }
 
         vTaskDelay(1000 / portTICK_PERIOD_MS);
     }
