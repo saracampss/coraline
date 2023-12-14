@@ -17,12 +17,14 @@
 #include "mqtt.h"
 #include "oled.h"
 #include "dht22.h"
+#include "nvs.h"
 
 #define TAG "MAIN"
 
 #define MOISTURE ADC_CHANNEL_6
 
 extern int PLANT_STATUS;
+extern int DISPLAY_MODE;
 
 float TEMPERATURE = 0.0;
 float HUMIDITY = 0.0;
@@ -30,15 +32,6 @@ float SOIL_MOISTURE = 0.0;
 
 SemaphoreHandle_t conexaoWifiSemaphore;
 SemaphoreHandle_t conexaoMQTTSemaphore;
-
-void oled_task(void *params)
-{
-  while (true)
-  {
-    oled_display_info();
-    vTaskDelay(1000 / portTICK_PERIOD_MS);
-  }
-}
 
 void soil_task(void *params)
 {
@@ -93,10 +86,10 @@ void trata_comunicacao_servidor(void *params)
   {
     while (true)
     {
-      sprintf(mensagem, "{\"moisture\": %f, \"temperature\": %f, \"humidity\": %f, \n\"humor_status\": %d}", SOIL_MOISTURE, TEMPERATURE, HUMIDITY, PLANT_STATUS);
+      sprintf(mensagem, "{\"moisture\": %f, \"temperature\": %f, \"humidity\": %f, \n\"plant_status\": %d}", SOIL_MOISTURE, TEMPERATURE, HUMIDITY, PLANT_STATUS);
       mqtt_envia_mensagem("v1/devices/me/telemetry", mensagem);
 
-      sprintf(jsonAtributos, "{\"moisture\": %f, \"temperature\": %f, \"humidity\": %f, \n\"humor_status\": %d}", SOIL_MOISTURE, TEMPERATURE, HUMIDITY, PLANT_STATUS);
+      sprintf(jsonAtributos, "{\"display_mode\": %d, \n\"plant_status\": %d}", DISPLAY_MODE, PLANT_STATUS);
       mqtt_envia_mensagem("v1/devices/me/attributes", mensagem);
 
       vTaskDelay(3000 / portTICK_PERIOD_MS);
@@ -116,6 +109,8 @@ void app_main(void)
 
   ESP_ERROR_CHECK(ret);
 
+  inicia_valores_nvs();
+
   conexaoWifiSemaphore = xSemaphoreCreateBinary();
   conexaoMQTTSemaphore = xSemaphoreCreateBinary();
 
@@ -125,7 +120,9 @@ void app_main(void)
 
   xTaskCreate(&conectado_wifi, "Conexão ao MQTT", 4096, NULL, 1, NULL);
   xTaskCreate(&trata_comunicacao_servidor, "Comunicação com Broker", 4096, NULL, 1, NULL);
-  xTaskCreate(&oled_task, "Atualização do Display", 2048, NULL, 2, NULL);
+  xTaskCreate(&oled_display_info_task, "Atualização do Display", 2048, NULL, 2, NULL);
+  xTaskCreate(&set_plant_status_task, "Atualização do Humor da Planta", 2048, NULL, 2, NULL);
   xTaskCreate(&dht_task, "Conexão com sensor DHT22", 2048, NULL, 3, NULL);
   xTaskCreate(&soil_task, "Conexão com sensor de umidade de solo", 2048, NULL, 3, NULL);
+  xTaskCreate(&grava_nvs_task, "Armazena dados de estado no NVS", 2048, NULL, 3, NULL);
 }
